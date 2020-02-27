@@ -1,0 +1,10 @@
+.login-form{
+    color: #1b1e21;
+}
+.card-header{
+    background-color: transparent !important;
+}
+.register-link{
+    float: left;
+    right: 100px;
+}
