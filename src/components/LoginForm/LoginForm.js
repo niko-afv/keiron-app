@@ -14,33 +14,38 @@ class LoginForm extends Component {
   constructor(props) {
     super(props)
     this.state = {}
+    if (localStorage.getItem('isAuthenticated')){
+      this.props.history.push('/user')
+    }
   }
   
   handleChange = event => {
     this.setState({
       [event.target.name] : event.target.value
     })
-    console.log("event change!!")
-    console.log(this.state)
   }
   
   handleSubmit = event => {
     let { email, password } = this.state
     let { history } = this.props
-    this.props.login(email, password)
-    history.push('/user')
-    this.setState({
-      email: '',
-      password: ''
-    })
+    let isAuthenticated = this.props.login(email, password)
+    if( localStorage.getItem('isAuthenticated') ){
+      this.setState({
+        email: '',
+        password: ''
+      })
+      history.push('/user')
+    }
   }
   
   render() {
     let { email, password } = this.state
     let { isLoginPending, isloginSuccess, loginError } = this.props
     let message = ''
-    if(this.props.loginError){
+    if( this.props.loginError ) {
       message = <div className="card-footer alert alert-danger">{this.props.loginError.toString()}</div>
+    }else if( this.props.isLoginPending ){
+      message = <div className="card-footer alert alert-warning">Autenticando...</div>
     }
     return (
       <div className="card login-form">

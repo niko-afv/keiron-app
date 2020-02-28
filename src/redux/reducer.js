@@ -1,26 +1,33 @@
+import axios from 'axios';
+import jwt_decode from 'jwt-decode'
+
+
 const SET_LOGIN_PENDING = 'SET_LOGIN_PENDING';
 const SET_LOGIN_SUCCESS = 'SET_LOGIN_SUCCESS';
 const SET_LOGIN_ERROR = 'SET_LOGIN_ERROR';
 const IS_AUTHENTICATED = 'IS_AUTHENTICATED';
 
-export function login(email, password) {
+export function login(email, password, history) {
   return dispatch => {
     dispatch(setLoginPending(true));
     dispatch(setLoginSuccess(false));
     dispatch(setLoginError(null));
     dispatch(setIsAuthenticated(localStorage.getItem('isAuthenticated')));
-    console.log('xdxdx')
     
-    callLoginApi(email, password,  error => {
-      dispatch(setLoginPending(false));
+    
+    
+    callLoginApi(email, password,  response => {
       let success = false
-      if (!error) {
+      dispatch(setLoginPending(false));
+      
+      if (!response.error) {
         success = true
         dispatch(setLoginSuccess(success));
         dispatch(setIsAuthenticated(success));
         localStorage.setItem('isAuthenticated', true)
+        localStorage.setItem('token', response.data.access_token)
       } else {
-        dispatch(setLoginError(error));
+        dispatch(setLoginError(response.message));
       }
     });
   }
@@ -55,11 +62,46 @@ function setIsAuthenticated(isAuthenticated) {
 }
 
 function callLoginApi(email, password, callback) {
-    if (email === 'niko.afv@gmail.com' && password === 'keiron-user') {
-      return callback(null);
-    } else {
-      return callback(new Error('Invalid email and password'));
-    }
+  var authOptions = {
+    method: 'POST',
+    url: 'http://localhost/api/auth/login',
+    data: {
+      "email": email,
+      "password": password,
+      "remember_me": true
+    },
+    json: true
+  };
+  axios(authOptions)
+    .then(
+      res => {
+        axios.get('http://localhost/api/auth/user',{
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization' : `Bearer ${res.data.access_token}`
+          }
+        } ).then(
+          res => {
+            return localStorage.setItem('user',JSON.stringify(res.data)) //JSON.parse to decode
+          }
+        )
+        return callback({
+          error: false,
+          data: res.data
+        });
+      },
+      error => {
+        return callback({
+          error: true,
+          message: new Error('Invalid email and password')
+        })
+      }
+    )
+  //if (email === 'niko.afv@gmail.com' && password === 'keiron-user') {
+  
+  //} else {
+  ///  return ;
+ // }
 }
 
 export default function reducer(state = {
@@ -85,7 +127,6 @@ export default function reducer(state = {
       });
   
     case IS_AUTHENTICATED:
-      console.log('hola')
       return Object.assign({}, state, {
         isAuthenticated: action.isAuthenticated
       });
