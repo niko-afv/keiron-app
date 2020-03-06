@@ -5,8 +5,6 @@ import { withRouter } from "react-router-dom";
 
 import './LoginForm.css';
 import {
-  BrowserRouter as Router,
-  useLocation,
   Link
 } from "react-router-dom";
 
@@ -40,7 +38,7 @@ class LoginForm extends Component {
   
   render() {
     let { email, password } = this.state
-    let { isLoginPending, isloginSuccess, loginError } = this.props
+    //let { isLoginPending, isloginSuccess, loginError } = this.props
     let message = ''
     if( this.props.loginError ) {
       message = <div className="card-footer alert alert-danger">{this.props.loginError.toString()}</div>
