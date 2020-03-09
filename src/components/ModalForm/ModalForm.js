@@ -16,6 +16,7 @@ class ModalForm extends React.Component{
       update: props.update,
       ticket: {}
     }
+    
     this.fetchUsers()
     
     this.handleInputChange = this.handleInputChange.bind(this);

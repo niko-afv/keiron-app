@@ -26,14 +26,15 @@ class LoginForm extends Component {
   handleSubmit = event => {
     let { email, password } = this.state
     let { history } = this.props
-    let isAuthenticated = this.props.login(email, password)
-    if( localStorage.getItem('isAuthenticated') ){
-      this.setState({
-        email: '',
-        password: ''
-      })
-      history.push('/user')
-    }
+    this.props.login(email, password).then(res => {
+      if( localStorage.getItem('isAuthenticated') === 'true' ){
+        if( res.id_tipouser === 2 ){
+          history.push('/admin')
+        }else {
+          history.push('/user')
+        }
+      }
+    })
   }
   
   render() {

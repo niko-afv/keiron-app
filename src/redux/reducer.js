@@ -15,7 +15,7 @@ export function login(email, password, history) {
     
     
     
-    callLoginApi(email, password,  response => {
+    return callLoginApi(email, password,  response => {
       let success = false
       dispatch(setLoginPending(false));
       
@@ -28,6 +28,13 @@ export function login(email, password, history) {
       } else {
         dispatch(setLoginError(response.message));
       }
+    }).then(response => {
+      dispatch(setLoginPending(false));
+      dispatch(setLoginSuccess(true));
+      dispatch(setIsAuthenticated(true));
+      localStorage.setItem('isAuthenticated', true)
+      localStorage.setItem('user', JSON.stringify(response))
+      return response
     });
   }
 }
@@ -71,29 +78,25 @@ function callLoginApi(email, password, callback) {
     },
     json: true
   };
-  axios(authOptions)
+  return axios(authOptions)
     .then(
       res => {
-        axios.get('http://localhost/api/auth/user',{
+        localStorage.setItem('token', res.data.access_token)
+        return axios.get('http://localhost/api/auth/user',{
           headers: {
             'Content-Type': 'application/json',
             'Authorization' : `Bearer ${res.data.access_token}`
           }
         } ).then(
           res => {
-            return localStorage.setItem('user',JSON.stringify(res.data)) //JSON.parse to decode
+            //return localStorage.setItem('user',JSON.stringify(res.data))
+            return res.data
           }
         )
-        return callback({
-          error: false,
-          data: res.data
-        });
+        //return callback({error: false, data: res.data});
       },
       error => {
-        return callback({
-          error: true,
-          message: new Error('Invalid email and password')
-        })
+        //return callback({error: true, message: new Error('Invalid email and password')})
       }
     )
 }

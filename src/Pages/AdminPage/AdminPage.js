@@ -1,15 +1,21 @@
 import React from 'react';
 import axios from 'axios';
 import DataTable from "react-data-table-component";
-import {withRouter} from "react-router-dom";
+import {BrowserRouter as Router, Route, Switch, withRouter} from "react-router-dom";
 import {connect} from "react-redux";
 import {Button} from "react-bootstrap";
-import {FaHandsHelping} from 'react-icons/fa'
+import ModalForm from "../../components/ModalForm/ModalForm";
+import { FaPlus, FaPencilAlt, FaTrash } from 'react-icons/fa'
+import Login from "../../components/LoginForm/LoginForm";
+import Register from "../../components/Register/Register";
+import AuthorizedContent from "../../components/AuthorizedContent/AuthorizedContent";
 
-class UserPage extends React.Component {
+class AdminPage extends React.Component {
   
   constructor(props) {
     super(props);
+    this.modalForm = React.createRef()
+    this.showModal = this.showModal.bind(this)
     this.state = {
       tickets: [],
       selectedTicket: {},
@@ -35,14 +41,18 @@ class UserPage extends React.Component {
           button: true,
           cell: (row) =>
             <>
-              <Button variant="outline-dark">
-                <FaHandsHelping/>
+              <Button variant="outline-dark" onClick={() => this.showModal(row)}>
+                <FaPencilAlt/>
               </Button>
               &nbsp;
+              <Button variant="outline-danger" onClick={() => this.deleteTicket(row)}>
+                <FaTrash/>
+              </Button>
             </>
           ,
         },
-      ]
+      ],
+      actions : <Button key="add" onClick={() => this.showModal({})}><FaPlus/></Button>
     }
     this.fetchTickets = this.fetchTickets.bind(this)
     this.setTickets = this.setTickets.bind(this)
@@ -56,9 +66,30 @@ class UserPage extends React.Component {
   render() {
     return (
       <>
-        <DataTable columns={this.state.columns} data={this.state.tickets} progressPending={this.state.loading} persistTableHead />
+        <DataTable columns={this.state.columns} data={this.state.tickets} progressPending={this.state.loading} persistTableHead actions={this.state.actions} />
+        <ModalForm ref={this.modalForm} update={false} onSave={this.setTickets}  />
       </>
     )
+  }
+  
+  deleteTicket(ticket){
+    let token = localStorage.getItem('token')
+    return axios.delete(`http://localhost/api/tickets/${ticket.id}`,{
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization' : `Bearer ${token}`
+      }
+    })
+      .then(
+        res => {
+          this.setTickets(res.data.data)
+        }
+      )
+  }
+  
+  showModal(data){
+    this.modalForm.current.setTicket(data)
+    this.modalForm.current.handleShow()
   }
   
   setLoading(loading){
@@ -72,8 +103,8 @@ class UserPage extends React.Component {
   checkAuth(){
     if(localStorage.getItem('isAuthenticated') != 'true'){
       this.props.history.push('/login')
-    }else if( JSON.parse(localStorage.getItem('user')).id_tipouser === 2 ){
-      this.props.history.push('/admin')
+    }else if( JSON.parse(localStorage.getItem('user')).id_tipouser === 1 ){
+      this.props.history.push('/user')
     }else{
       return true
     }
@@ -85,8 +116,8 @@ class UserPage extends React.Component {
         loading: true
       })
     }
-    const user_id = JSON.parse(localStorage.getItem('user')).id
-    this.fetch(`http://localhost/api/users/${user_id}/tickets`).then(res => {
+    
+    this.fetch('http://localhost/api/tickets').then(res => {
       let data = [];
       let tickets = res.data
       tickets.forEach((ticket) => {
@@ -110,11 +141,11 @@ class UserPage extends React.Component {
         'Authorization' : `Bearer ${token}`
       }
     })
-    .then(
-      res => {
-        return res.data
-      }
-    )
+      .then(
+        res => {
+          return res.data
+        }
+      )
   }
 }
 
@@ -124,4 +155,4 @@ const mapStateToProps = (state) => {
   }
 }
 
-export default withRouter(connect(mapStateToProps)(UserPage));
+export default withRouter(connect(mapStateToProps)(AdminPage));
