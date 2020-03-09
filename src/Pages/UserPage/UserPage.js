@@ -41,7 +41,7 @@ class UserPage extends React.Component {
           </Button>,
         },
       ],
-      actions : <Button key="add" onClick={this.showModal}><FaPlus/></Button>
+      actions : <Button key="add" onClick={() => this.showModal({})}><FaPlus/></Button>
     }
     
     if( this.checkAuth() ) {
@@ -84,8 +84,7 @@ class UserPage extends React.Component {
   }
   
   fetchTickets() {
-    let token = localStorage.getItem('token')
-    if(this.state.loading == false){
+    if(this.state.loading === false){
       this.setState({
         loading: true
       })

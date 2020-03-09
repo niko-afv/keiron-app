@@ -18,7 +18,8 @@ class ModalForm extends React.Component{
     }
     this.fetchUsers()
     
-    this.handleChange = this.handleChange.bind(this);
+    this.handleInputChange = this.handleInputChange.bind(this);
+    this.handleSelectChange = this.handleSelectChange.bind(this);
     this.handleSave = this.handleSave.bind(this);
   }
   
@@ -47,24 +48,48 @@ class ModalForm extends React.Component{
     this.setShow(false)
   };
   
+  restaureForm(data) {
+    this.setShow(false)
+    this.setSaving(false)
+    this.setLoading(false)
+    this.props.onSave(data)
+  }
+  
   handleSave(){
     let ticket_id = this.state.ticket.id
     this.setSaving(true)
     this.setLoading(true)
-    this.post(`http://localhost/api/tickets/${ticket_id}`, this.state.ticket).then(response => {
-      if (response.error === false){
-        this.setShow(false)
-        this.setSaving(false)
-        this.setLoading(false)
-        this.props.onSave(response.data)
-      }else{
-        console.log(response.error)
-      }
+    if(ticket_id === undefined){
+      this.create(`http://localhost/api/tickets`, this.state.ticket).then(response => {
+        if (response.error === false){
+          this.restaureForm(response.data)
+        }else{
+          console.log(response.error)
+        }
+      })
+    } else {
+      this.update(`http://localhost/api/tickets/${ticket_id}`, this.state.ticket).then(response => {
+        if (response.error === false){
+          this.restaureForm(response.data)
+        }else{
+          console.log(response.error)
+        }
+      })
+    }
+  }
+  
+  handleInputChange(event){
+    const ticket = {
+      id: this.state.ticket.id,
+      order: event.target.value,
+      user: this.state.ticket.user
+    }
+    this.setState({
+      ticket: ticket
     })
   }
   
-  handleChange(event){
-    
+  handleSelectChange(event){
     const ticket = {
       id: this.state.ticket.id,
       order: this.state.ticket.order,
@@ -100,9 +125,24 @@ class ModalForm extends React.Component{
       )
   }
   
-  post(url, data){
+  update(url, data){
     let token = localStorage.getItem('token')
     return axios.put(url, data,{
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization' : `Bearer ${token}`
+      }
+    })
+      .then(
+        res => {
+          return res.data
+        }
+      )
+  }
+  
+  create(url, data){
+    let token = localStorage.getItem('token')
+    return axios.post(url, data,{
       headers: {
         'Content-Type': 'application/json',
         'Authorization' : `Bearer ${token}`
@@ -125,10 +165,11 @@ class ModalForm extends React.Component{
           <Form>
             <Form.Group controlId="formBasicEmail">
               <Form.Label>Ticket Pedido</Form.Label>
-              <Form.Control type="text" defaultValue={this.state.ticket.order} disabled={this.props.update} />
+              <Form.Control type="text" defaultValue={this.state.ticket.order} onChange={this.handleInputChange} disabled={this.props.update} />
               <Form.Group controlId="exampleForm.ControlSelect1">
                 <Form.Label>Asignar Usuario</Form.Label>
-                <Form.Control as="select" onChange={this.handleChange} value={this.state.ticket.user} >
+                <Form.Control as="select" onChange={this.handleSelectChange} value={this.state.ticket.user} >
+                  <option>Seleccione un usuario</option>
                   {this.state.loading === true && this.state.new === true? <option>Wait while users are loading</option>: ''}
                   {this.state.loading === true && this.state.new === false? <option>{this.state.ticket.user}</option>: ''}
               
@@ -150,7 +191,7 @@ class ModalForm extends React.Component{
           <Button variant="secondary" onClick={this.handleClose}>
             Cancelar
           </Button>
-          <Button variant="primary" onClick={this.handleSave} disabled={this.state.loading == true} >
+          <Button variant="primary" onClick={this.handleSave} disabled={this.state.loading === true} >
             Guardar Cambios
           </Button>
         </Modal.Footer>
