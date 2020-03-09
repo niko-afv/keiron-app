@@ -3,14 +3,19 @@ import axios from 'axios';
 import DataTable from "react-data-table-component";
 import { withRouter } from "react-router-dom";
 import {connect} from "react-redux";
-import AdminActions from '../../components/AdminActions/AdminActions'
+import {Button} from "react-bootstrap";
+import ModalForm from "../../components/ModalForm/ModalForm";
+import { FaPlus, FaPencilAlt } from 'react-icons/fa'
 
 class UserPage extends React.Component {
   
   constructor(props) {
     super(props);
+    this.modalForm = React.createRef()
+    this.showModal = this.showModal.bind(this)
     this.state = {
       tickets: [],
+      selectedTicket: {},
       loading: true,
       columns: [
         {
@@ -31,9 +36,12 @@ class UserPage extends React.Component {
         {
           name: 'Actions',
           button: true,
-          cell: (row) => <AdminActions data={row} onSave={this.setTickets} />,
+          cell: (row) => <Button variant="outline-dark" onClick={() => this.showModal(row)}>
+            <FaPencilAlt/>
+          </Button>,
         },
-      ]
+      ],
+      actions : <Button key="add" onClick={this.showModal}><FaPlus/></Button>
     }
     
     if( this.checkAuth() ) {
@@ -46,8 +54,17 @@ class UserPage extends React.Component {
   
   render() {
     return (
-      <DataTable columns={this.state.columns} data={this.state.tickets} progressPending={this.state.loading} persistTableHead />
+      <>
+      <DataTable columns={this.state.columns} data={this.state.tickets} progressPending={this.state.loading} persistTableHead actions={this.state.actions} />
+      
+      <ModalForm ref={this.modalForm} update={false} onSave={this.setTickets}  />
+      </>
     )
+  }
+  
+  showModal(data){
+    this.modalForm.current.setTicket(data)
+    this.modalForm.current.handleShow()
   }
   
   setLoading(loading){

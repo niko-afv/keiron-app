@@ -22,7 +22,7 @@ class AuthorizedContent extends React.Component {
         <Row>
           <Col>
             <Navbar bg="light" expand="lg">
-              <Navbar.Brand href="#home">Keiron Test</Navbar.Brand>
+              <Navbar.Brand>Keiron Test</Navbar.Brand>
               <Navbar.Toggle aria-controls="basic-navbar-nav" />
               <Navbar.Collapse className="justify-content-end">
                 <Nav className="flex-column">
