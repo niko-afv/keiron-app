@@ -8,6 +8,19 @@ class AuthorizedContent extends React.Component {
   constructor(props) {
     super(props);
     this.logout = this.logout.bind(this)
+    this.state = {
+      user: {
+        name: ''
+      }
+    }
+    this.checkAuth()
+    
+  }
+  
+  componentDidMount() {
+    this.setState({
+      user: JSON.parse(localStorage.getItem('user'))
+    })
   }
   
   logout(){
@@ -18,6 +31,15 @@ class AuthorizedContent extends React.Component {
     this.logout = this.logout.bind(this)
   }
   
+  checkAuth(){
+    if(localStorage.getItem('isAuthenticated') != 'true'){
+      this.props.history.push('/login')
+    }else if( JSON.parse(localStorage.getItem('user')).id_tipouser === 1 ){
+      this.props.history.push('/user')
+    }else{
+      return true
+    }
+  }
   
   render(){
     return (
@@ -29,7 +51,7 @@ class AuthorizedContent extends React.Component {
               <Navbar.Toggle aria-controls="basic-navbar-nav" />
               <Navbar.Collapse className="justify-content-end">
                 <Nav className="flex-column">
-                  <NavDropdown title={JSON.parse(localStorage.getItem('user')).name} id="basic-nav-dropdown">
+                  <NavDropdown title={this.state.user.name}  id="basic-nav-dropdown">
                     <NavDropdown.Item onClick={this.logout}>Salir</NavDropdown.Item>
                   </NavDropdown>
                 </Nav>

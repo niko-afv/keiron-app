@@ -7,8 +7,8 @@ import axios from "axios";
 
 
 class Register extends React.Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       name: '',
       email: '',
@@ -19,7 +19,9 @@ class Register extends React.Component {
       error: false,
       messages: ''
     }
-    console.log(this.state)
+    if (localStorage.getItem('isAuthenticated') === "true"){
+      this.props.history.push('/user')
+    }
   }
   
   setIsSending(sending){

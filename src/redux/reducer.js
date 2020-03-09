@@ -15,20 +15,8 @@ export function login(email, password, history) {
     
     
     
-    return callLoginApi(email, password,  response => {
-      let success = false
-      dispatch(setLoginPending(false));
-      
-      if (!response.error) {
-        success = true
-        dispatch(setLoginSuccess(success));
-        dispatch(setIsAuthenticated(success));
-        localStorage.setItem('isAuthenticated', true)
-        localStorage.setItem('token', response.data.access_token)
-      } else {
-        dispatch(setLoginError(response.message));
-      }
-    }).then(response => {
+    return callLoginApi(email, password).then(response => {
+      console.log("login login login")
       dispatch(setLoginPending(false));
       dispatch(setLoginSuccess(true));
       dispatch(setIsAuthenticated(true));

@@ -57,9 +57,9 @@ class AdminPage extends React.Component {
     this.fetchTickets = this.fetchTickets.bind(this)
     this.setTickets = this.setTickets.bind(this)
     
-    if ( this.checkAuth() ) {
+    //if ( this.checkAuth() ) {
       this.fetchTickets()
-    }
+    //}
     
   }
   
@@ -102,10 +102,13 @@ class AdminPage extends React.Component {
   
   checkAuth(){
     if(localStorage.getItem('isAuthenticated') != 'true'){
+      console.log('no logueado')
       this.props.history.push('/login')
     }else if( JSON.parse(localStorage.getItem('user')).id_tipouser === 1 ){
+      console.log('user')
       this.props.history.push('/user')
     }else{
+      console.log('admin')
       return true
     }
   }
