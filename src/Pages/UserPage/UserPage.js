@@ -5,7 +5,7 @@ import { withRouter } from "react-router-dom";
 import {connect} from "react-redux";
 import {Button} from "react-bootstrap";
 import ModalForm from "../../components/ModalForm/ModalForm";
-import { FaPlus, FaPencilAlt } from 'react-icons/fa'
+import { FaPlus, FaPencilAlt, FaTrash } from 'react-icons/fa'
 
 class UserPage extends React.Component {
   
@@ -36,9 +36,17 @@ class UserPage extends React.Component {
         {
           name: 'Actions',
           button: true,
-          cell: (row) => <Button variant="outline-dark" onClick={() => this.showModal(row)}>
-            <FaPencilAlt/>
-          </Button>,
+          cell: (row) =>
+            <>
+              <Button variant="outline-dark" onClick={() => this.showModal(row)}>
+                <FaPencilAlt/>
+              </Button>
+              &nbsp;
+              <Button variant="outline-danger" onClick={() => this.deleteTicket(row)}>
+                <FaTrash/>
+              </Button>
+            </>
+          ,
         },
       ],
       actions : <Button key="add" onClick={() => this.showModal({})}><FaPlus/></Button>
@@ -60,6 +68,21 @@ class UserPage extends React.Component {
       <ModalForm ref={this.modalForm} update={false} onSave={this.setTickets}  />
       </>
     )
+  }
+  
+  deleteTicket(ticket){
+    let token = localStorage.getItem('token')
+    return axios.delete(`http://localhost/api/tickets/${ticket.id}`,{
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization' : `Bearer ${token}`
+      }
+    })
+      .then(
+        res => {
+          this.setTickets(res.data.data)
+        }
+      )
   }
   
   showModal(data){
