@@ -4,7 +4,6 @@ import DataTable from "react-data-table-component";
 import { withRouter } from "react-router-dom";
 import {connect} from "react-redux";
 import AdminActions from '../../components/AdminActions/AdminActions'
-//import {login} from "../../redux/reducer";
 
 class UserPage extends React.Component {
   
@@ -36,11 +35,13 @@ class UserPage extends React.Component {
         },
       ]
     }
-    this.checkAuth()
-    this.fetchTickets()
     
-    this.fetchTickets = this.fetchTickets.bind(this)
-    this.setTickets = this.setTickets.bind(this)
+    if( this.checkAuth() ) {
+      this.fetchTickets = this.fetchTickets.bind(this)
+      this.setTickets = this.setTickets.bind(this)
+      
+      this.fetchTickets()
+    }
   }
   
   render() {
@@ -58,8 +59,10 @@ class UserPage extends React.Component {
   }
   
   checkAuth(){
-    if(!this.props.isAuthenticated){
+    if(this.props.isAuthenticated === null){
       this.props.history.push('/login')
+    }else{
+      return true
     }
   }
   

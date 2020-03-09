@@ -96,11 +96,6 @@ function callLoginApi(email, password, callback) {
         })
       }
     )
-  //if (email === 'niko.afv@gmail.com' && password === 'keiron-user') {
-  
-  //} else {
-  ///  return ;
- // }
 }
 
 export default function reducer(state = {

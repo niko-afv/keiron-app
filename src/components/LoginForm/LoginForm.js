@@ -12,7 +12,7 @@ class LoginForm extends Component {
   constructor(props) {
     super(props)
     this.state = {}
-    if (localStorage.getItem('isAuthenticated')){
+    if (localStorage.getItem('isAuthenticated') === "true"){
       this.props.history.push('/user')
     }
   }

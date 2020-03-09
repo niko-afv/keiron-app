@@ -1,13 +1,13 @@
 import React from 'react';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css'
-import GuestPage from './Pages/GuestPage/GuestPage'
+import MainContent from './components/MainContent/MainContent'
 
 
 function App() {
   return (
     <div className="App">
-      <GuestPage/>
+      <MainContent/>
     </div>
   );
 }
